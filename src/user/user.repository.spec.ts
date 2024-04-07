@@ -2,6 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import { UserRepository } from './user.repository';
 
 describe(UserRepository, () => {
+  let userRepository: UserRepository;
+
   const prisma = new PrismaClient({
     datasources: {
       db: {
@@ -12,6 +14,7 @@ describe(UserRepository, () => {
 
   beforeAll(async () => {
     await prisma.$connect();
+    userRepository = UserRepository(prisma.user);
   });
 
   afterAll(async () => {
@@ -20,7 +23,7 @@ describe(UserRepository, () => {
   });
 
   it('should be defined', () => {
-    expect(UserRepository(prisma.user)).toBeDefined();
+    expect(userRepository).toBeDefined();
   });
 
   it('should soft delete a user', async () => {
@@ -33,7 +36,7 @@ describe(UserRepository, () => {
     });
 
     // when
-    await UserRepository(prisma.user).softDelete(user.id);
+    await userRepository.softDelete(user.id);
 
     // then
     const deletedUser = await prisma.user.findUnique({
@@ -52,7 +55,7 @@ describe(UserRepository, () => {
     });
 
     // when
-    const users = await UserRepository(prisma.user).findManyAndCount({
+    const users = await userRepository.findManyAndCount({
       page: 0,
       perPage: 5,
     });
